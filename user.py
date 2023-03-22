@@ -1,8 +1,8 @@
 
 from app import app
-from flask import Flask, render_template, request, flash, redirect, g
+from flask import render_template, request, flash, redirect, g
 from forms import EditUser
-from models import db, connect_db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
+from models import db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
 from helpers import do_logout
 
 
@@ -36,8 +36,11 @@ def show_user(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
+
+    # format?
     messages = Message.query.filter_by(
         user_id=user.id).order_by(Message.timestamp.desc()).all()
+
     return render_template('users/show.html', user=user, messages=messages)
 
 
@@ -115,8 +118,9 @@ def profile():
 
         g.user.username = form.username.data
         g.user.email = form.email.data
-        g.user.image_url = form.image_url.data or DEFAULT_IMAGE_URL
-        g.user.header_image_url = form.header_image_url.data or DEFAULT_HEADER_IMAGE_URL
+        g.user.image_url = (form.image_url.data or DEFAULT_IMAGE_URL)
+        g.user.header_image_url = (
+            form.header_image_url.data or DEFAULT_HEADER_IMAGE_URL) #format?
         g.user.bio = form.bio.data
         g.user.location = form.location.data
 

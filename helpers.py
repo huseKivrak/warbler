@@ -1,3 +1,4 @@
+"""Contains helper functions that are useful elsewhere"""
 
 import os
 

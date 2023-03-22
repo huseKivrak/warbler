@@ -3,11 +3,11 @@ from helpers import do_login, do_logout, CURR_USER_KEY
 import os
 from dotenv import load_dotenv
 
-from flask import Flask, render_template, request, flash, redirect, session, g
+from flask import Flask, render_template, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm, CSRFForm
+from forms import UserAddForm, LoginForm, CSRFForm
 from models import db, connect_db, User, Message
 
 load_dotenv()
@@ -113,11 +113,10 @@ def logout():
 
     if form.validate_on_submit():
         do_logout()
+
         flash("Logged out!", "success")
         return redirect("/")
 
-    # IMPLEMENT THIS AND FIX BUG
-    # DO NOT CHANGE METHOD ON ROUTE
 
 
 ##############################################################################
@@ -140,6 +139,7 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+        
         return render_template('home.html', messages=messages)
 
     else:
