@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm, MessageForm
 from models import db, connect_db, User, Message
 
+
 load_dotenv()
 
 CURR_USER_KEY = "curr_user"
@@ -22,7 +23,7 @@ toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
-
+import user, message
 ##############################################################################
 # User signup/login/logout
 
@@ -123,181 +124,10 @@ def logout():
 ##############################################################################
 # General user routes:
 
-@app.get('/users')
-def list_users():
-    """Page with listing of users.
-
-    Can take a 'q' param in querystring to search by that username.
-    """
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    search = request.args.get('q')
-
-    if not search:
-        users = User.query.all()
-    else:
-        users = User.query.filter(User.username.like(f"%{search}%")).all()
-
-    return render_template('users/index.html', users=users)
-
-
-@app.get('/users/<int:user_id>')
-def show_user(user_id):
-    """Show user profile."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    user = User.query.get_or_404(user_id)
-
-    return render_template('users/show.html', user=user)
-
-
-@app.get('/users/<int:user_id>/following')
-def show_following(user_id):
-    """Show list of people this user is following."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user)
-
-
-@app.get('/users/<int:user_id>/followers')
-def show_followers(user_id):
-    """Show list of followers of this user."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user)
-
-
-@app.post('/users/follow/<int:follow_id>')
-def start_following(follow_id):
-    """Add a follow for the currently-logged-in user.
-
-    Redirect to following page for the current for the current user.
-    """
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    followed_user = User.query.get_or_404(follow_id)
-    g.user.following.append(followed_user)
-    db.session.commit()
-
-    return redirect(f"/users/{g.user.id}/following")
-
-
-@app.post('/users/stop-following/<int:follow_id>')
-def stop_following(follow_id):
-    """Have currently-logged-in-user stop following this user.
-
-    Redirect to following page for the current for the current user.
-    """
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    followed_user = User.query.get(follow_id)
-    g.user.following.remove(followed_user)
-    db.session.commit()
-
-    return redirect(f"/users/{g.user.id}/following")
-
-
-@app.route('/users/profile', methods=["GET", "POST"])
-def profile():
-    """Update profile for current user."""
-
-    # IMPLEMENT THIS
-
-
-@app.post('/users/delete')
-def delete_user():
-    """Delete user.
-
-    Redirect to signup page.
-    """
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    do_logout()
-
-    db.session.delete(g.user)
-    db.session.commit()
-
-    return redirect("/signup")
 
 
 ##############################################################################
 # Messages routes:
-
-@app.route('/messages/new', methods=["GET", "POST"])
-def add_message():
-    """Add a message:
-
-    Show form if GET. If valid, update message and redirect to user page.
-    """
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    form = MessageForm()
-
-    if form.validate_on_submit():
-        msg = Message(text=form.text.data)
-        g.user.messages.append(msg)
-        db.session.commit()
-
-        return redirect(f"/users/{g.user.id}")
-
-    return render_template('messages/create.html', form=form)
-
-
-@app.get('/messages/<int:message_id>')
-def show_message(message_id):
-    """Show a message."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    msg = Message.query.get_or_404(message_id)
-    return render_template('messages/show.html', message=msg)
-
-
-@app.post('/messages/<int:message_id>/delete')
-def delete_message(message_id):
-    """Delete a message.
-
-    Check that this message was written by the current user.
-    Redirect to user page on success.
-    """
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    msg = Message.query.get_or_404(message_id)
-    db.session.delete(msg)
-    db.session.commit()
-
-    return redirect(f"/users/{g.user.id}")
 
 
 ##############################################################################

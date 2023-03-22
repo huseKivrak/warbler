@@ -67,7 +67,7 @@ class User(db.Model):
     )
 
     location = db.Column(
-        db.Text,
+        db.Text, # change to String(chars)?
     )
 
     password = db.Column(
