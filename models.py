@@ -8,8 +8,8 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
-DEFAULT_IMAGE_URL = "/static/images/default-pic.png"
-DEFAULT_HEADER_IMAGE_URL = "/static/images/warbler-hero.jpg"
+DEFAULT_IMAGE_URL = "https://tinyurl.com/2mckfxfe"
+DEFAULT_HEADER_IMAGE_URL = "https://tinyurl.com/2fvwn73j"
 
 
 class Follows(db.Model):

@@ -14,7 +14,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-#we want to import these routes after declaring app, but auto format moves them
+# we want to import these routes after declaring app, but auto format moves them
 if True:
     import message
     import user
@@ -133,12 +133,13 @@ def homepage():
     """
 
     if g.user:
+        following_ids = [u.id for u in g.user.following]
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(following_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-
         return render_template('home.html', messages=messages)
 
     else:
