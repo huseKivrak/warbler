@@ -1,15 +1,9 @@
-import os
-from dotenv import load_dotenv
 
-from flask import render_template, request, flash, redirect, g
-
-from models import db, User
 from app import app
+from flask import Flask, render_template, request, flash, redirect, g
+
+from models import db, connect_db, User
 from helpers import do_logout
-
-load_dotenv()
-
-CURR_USER_KEY = "curr_user"
 
 
 @app.get('/users')

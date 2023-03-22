@@ -1,6 +1,5 @@
-import message
-import user
-from helpers import do_login, do_logout
+from helpers import do_login, do_logout, CURR_USER_KEY
+
 import os
 from dotenv import load_dotenv
 
@@ -11,13 +10,14 @@ from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm, MessageForm
 from models import db, connect_db, User, Message
 
-
 load_dotenv()
 
-CURR_USER_KEY = "curr_user"
-
-
 app = Flask(__name__)
+
+#we want to import these routes after declaring app, but auto format moves them
+if True:
+    import message
+    import user
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_ECHO'] = False
@@ -25,7 +25,9 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 # toolbar = DebugToolbarExtension(app)
 
+
 connect_db(app)
+
 
 ##############################################################################
 # User signup/login/logout

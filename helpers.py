@@ -2,9 +2,9 @@
 import os
 
 from flask import session
-from app import CURR_USER_KEY
 from models import User
 
+CURR_USER_KEY = "curr_user"
 
 def do_login(user):
     """Log in user."""

@@ -1,15 +1,8 @@
-import os
-from dotenv import load_dotenv
-
 from flask import render_template, flash, redirect, g
 
 from forms import MessageForm
 from models import db, Message
 from app import app
-
-load_dotenv()
-
-CURR_USER_KEY = "curr_user"
 
 
 @app.route('/messages/new', methods=["GET", "POST"])
