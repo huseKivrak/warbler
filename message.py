@@ -1,17 +1,17 @@
 import os
 from dotenv import load_dotenv
 
-from flask import Flask, render_template, request, flash, redirect, session, g
-from flask_debugtoolbar import DebugToolbarExtension
-from sqlalchemy.exc import IntegrityError
+from flask import render_template, flash, redirect, g
 
-from forms import UserAddForm, LoginForm, MessageForm
-from models import db, connect_db, User, Message
+from forms import MessageForm
+from models import db, Message
 from app import app
 
 load_dotenv()
 
 CURR_USER_KEY = "curr_user"
+
+
 @app.route('/messages/new', methods=["GET", "POST"])
 def add_message():
     """Add a message:
@@ -64,4 +64,3 @@ def delete_message(message_id):
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
-

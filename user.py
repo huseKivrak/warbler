@@ -1,17 +1,16 @@
 import os
 from dotenv import load_dotenv
 
-from flask import Flask, render_template, request, flash, redirect, session, g
-from flask_debugtoolbar import DebugToolbarExtension
-from sqlalchemy.exc import IntegrityError
+from flask import render_template, request, flash, redirect, g
 
-from forms import UserAddForm, LoginForm, MessageForm
-from models import db, connect_db, User, Message
+from models import db, User
 from app import app
+from helpers import do_logout
 
 load_dotenv()
 
 CURR_USER_KEY = "curr_user"
+
 
 @app.get('/users')
 def list_users():

@@ -1,3 +1,6 @@
+import message
+import user
+from helpers import do_login, do_logout
 import os
 from dotenv import load_dotenv
 
@@ -13,17 +16,17 @@ load_dotenv()
 
 CURR_USER_KEY = "curr_user"
 
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
-import user, message
 ##############################################################################
 # User signup/login/logout
 
@@ -37,19 +40,6 @@ def add_user_to_g():
 
     else:
         g.user = None
-
-
-def do_login(user):
-    """Log in user."""
-
-    session[CURR_USER_KEY] = user.id
-
-
-def do_logout():
-    """Log out user."""
-
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -119,15 +109,6 @@ def logout():
 
     # IMPLEMENT THIS AND FIX BUG
     # DO NOT CHANGE METHOD ON ROUTE
-
-
-##############################################################################
-# General user routes:
-
-
-
-##############################################################################
-# Messages routes:
 
 
 ##############################################################################
