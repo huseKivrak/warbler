@@ -125,7 +125,6 @@ def profile():
         g.user.location = form.location.data
 
         db.session.commit()
-
         return redirect(f'/users/{g.user.id}')
 
     return render_template('/users/edit.html', form=form)
@@ -141,10 +140,11 @@ def delete_user():
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
+    user = g.user
     do_logout()
 
-    db.session.delete(g.user)
+    Message.query.filter_by(user_id=user.id).delete()
+    db.session.delete(user)
     db.session.commit()
 
     return redirect("/signup")
