@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField
-from wtforms.validators import DataRequired, Email, Length
+from wtforms.validators import DataRequired, Email, Length, URL, ValidationError, Optional
+from models import User
+from flask import g
 
 
 class MessageForm(FlaskForm):
@@ -47,3 +49,56 @@ class LoginForm(FlaskForm):
 
 class CSRFForm(FlaskForm):
     """empty form for CSRF protection"""
+
+
+class EditUser(FlaskForm):
+
+    username = StringField(
+        'Username',
+        validators=[DataRequired()]
+    )
+
+    email = StringField(
+        'E-mail',
+        validators=[Email()],
+    )
+
+    image_url = StringField(
+        '(Optional) Image URL',
+        validators=[URL(), Optional()]
+    )
+
+    header_image_url = StringField(
+        '(Optional) Header Image URL',
+        validators=[URL(), Optional()]
+    )
+
+    bio = TextAreaField(
+        'Bio',
+        validators=[Optional()]
+    )
+
+    location = StringField(
+        'Location',
+        validators=[Optional()]
+    )
+
+
+    password = PasswordField(
+        'Confrim password',
+        validators=[Length(min=6)],
+    )
+
+    def validate_password(self, field):
+        if not User.authenticate(g.user.username, field.data):
+            raise ValidationError('Incorrect password, please try again.')
+
+    def validate_username(self, field):
+        existing_user = User.query.filter_by(username=field.data).one_or_none()
+        if existing_user and existing_user.username != g.user.username:
+            raise ValidationError('Username is already taken.')
+
+    def validate_email(self, field):
+        existing_user = User.query.filter_by(email=field.data).one_or_none()
+        if existing_user and existing_user.email != g.user.email:
+            raise ValidationError('Email is already taken.')

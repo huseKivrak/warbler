@@ -1,8 +1,8 @@
 
 from app import app
 from flask import Flask, render_template, request, flash, redirect, g
-
-from models import db, connect_db, User
+from forms import EditUser
+from models import db, connect_db, User, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
 from helpers import do_logout
 
 
@@ -104,7 +104,26 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
+    form = EditUser(obj=g.user)
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    if form.validate_on_submit():
+
+        g.user.username = form.username.data
+        g.user.email = form.email.data
+        g.user.image_url = form.image_url.data or DEFAULT_IMAGE_URL
+        g.user.header_image_url = form.header_image_url.data or DEFAULT_HEADER_IMAGE_URL
+        g.user.bio = form.bio.data
+        g.user.location = form.location.data
+
+        db.session.commit()
+
+        return redirect(f'/users/{g.user.id}')
+
+    return render_template('/users/edit.html', form=form)
 
 
 @app.post('/users/delete')
