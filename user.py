@@ -2,7 +2,7 @@
 from app import app
 from flask import Flask, render_template, request, flash, redirect, g
 from forms import EditUser
-from models import db, connect_db, User, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
+from models import db, connect_db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
 from helpers import do_logout
 
 
@@ -36,8 +36,9 @@ def show_user(user_id):
         return redirect("/")
 
     user = User.query.get_or_404(user_id)
-
-    return render_template('users/show.html', user=user)
+    messages = Message.query.filter_by(
+        user_id=user.id).order_by(Message.timestamp.desc()).all()
+    return render_template('users/show.html', user=user, messages=messages)
 
 
 @app.get('/users/<int:user_id>/following')
