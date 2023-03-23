@@ -36,14 +36,19 @@ connect_db(app)
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
-    #add this form in a different function. not related to every function
-    g.csrf_form = CSRFForm()
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
 
     else:
         g.user = None
+
+
+@app.before_request
+def add_csrf_to_g():
+    """Add CSRF form to Flask global."""
+
+    g.csrf_form = CSRFForm()
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -111,25 +116,26 @@ def logout():
     #check if we have g.user
 
     form = g.csrf_form
-    #do something if form isn't validated. redirect to homepage or unauthorized
+
     if form.validate_on_submit():
         do_logout()
 
         flash("Logged out!", "success")
-        return redirect("/")
+
+    return redirect("/")
 
 
 
 ##############################################################################
 # Homepage and error pages
 
-#update docstring
+
 @app.get('/')
 def homepage():
     """Show homepage:
 
     - anon users: no messages
-    - logged in: 100 most recent messages of followed_users
+    - logged in: 100 most recent messages of followed_users and user
     """
 
     if g.user:
@@ -141,7 +147,7 @@ def homepage():
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-        
+
         return render_template('home.html', messages=messages)
 
     else:

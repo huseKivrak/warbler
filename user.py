@@ -106,14 +106,18 @@ def stop_following(follow_id):
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
-    """Update profile for current user."""
+    """
+    Update profile for current user.
 
-    form = EditUser(obj=g.user)     #move below guard condition
+    Forms.py methods authenticate password
+    and validate unique username and/or email
+    """
 
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
+    form = EditUser(obj=g.user)
     if form.validate_on_submit():
 
         g.user.username = form.username.data
@@ -140,11 +144,15 @@ def delete_user():
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    user = g.user
-    do_logout()
 
-    Message.query.filter_by(user_id=user.id).delete()
-    db.session.delete(user)
-    db.session.commit()
+    form = g.csrf_form
+    if form.validate_on_submit():
+
+        user = g.user
+        do_logout()
+
+        Message.query.filter_by(user_id=user.id).delete()
+        db.session.delete(user)
+        db.session.commit()
 
     return redirect("/signup")
