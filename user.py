@@ -35,13 +35,15 @@ def show_user(user_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
+    form = g.csrf_form
+
     user = User.query.get_or_404(user_id)
 
     # format?
     messages = Message.query.filter_by(
         user_id=user.id).order_by(Message.timestamp.desc()).all()
 
-    return render_template('users/show.html', user=user, messages=messages)
+    return render_template('users/show.html', user=user, messages=messages, form=form)
 
 
 @app.get('/users/<int:user_id>/following')

@@ -8,7 +8,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, CSRFForm
-from models import db, connect_db, User, Message, Like
+from models import db, connect_db, User, Message
 
 load_dotenv()
 
@@ -23,7 +23,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 
 connect_db(app)
@@ -35,7 +35,7 @@ connect_db(app)
 
 @app.before_request
 def add_user_to_g():
-    """If we're logged in, add curr user to Flask global."""
+    """If user is logged in, add them to Flask global."""
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
@@ -112,7 +112,10 @@ def login():
 @app.post('/logout')
 def logout():
     """Handle logout of user and redirect to homepage."""
-    #check if we have g.user
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     form = g.csrf_form
 

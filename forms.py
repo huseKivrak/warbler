@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField
+from wtforms import StringField, PasswordField, TextAreaField, HiddenField
 from wtforms.validators import DataRequired, Email, Length, URL, ValidationError, Optional
 from models import User
-from flask import g
+from flask import g, request
 
 
 class MessageForm(FlaskForm):
@@ -46,9 +46,6 @@ class LoginForm(FlaskForm):
         'Password',
         validators=[Length(min=6)],
     )
-
-class CSRFForm(FlaskForm):
-    """empty form for CSRF protection"""
 
 
 class EditUser(FlaskForm):
@@ -110,3 +107,8 @@ class EditUser(FlaskForm):
         existing_user = User.query.filter_by(email=field.data).one_or_none()
         if existing_user and existing_user.email != g.user.email:
             raise ValidationError('Email is already taken.')
+
+
+class CSRFForm(FlaskForm):
+    """empty form for CSRF protection"""
+

@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, request, g
+from flask import render_template, flash, redirect, g, request
 
 from forms import MessageForm
 from models import db, Message, Like
@@ -36,8 +36,10 @@ def show_message(message_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
+    form = g.csrf_form
+
     msg = Message.query.get_or_404(message_id)
-    return render_template('messages/show.html', message=msg)
+    return render_template('messages/show.html', message=msg, form=form)
 
 
 @app.post('/messages/<int:message_id>/delete')
@@ -52,17 +54,21 @@ def delete_message(message_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    msg = Message.query.get_or_404(message_id)
-    db.session.delete(msg)
-    db.session.commit()
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        msg = Message.query.get_or_404(message_id)
+        db.session.delete(msg)
+        db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
 
-#make sure we can't like our own messages
+
 @app.post('/messages/<int:message_id>/like')
 def like_message(message_id):
     """Likes a message"""
-    #make this a helper function?
+
+    # make guard clauses a helper function?
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -74,7 +80,10 @@ def like_message(message_id):
 
         db.session.add(like)
         db.session.commit()
-        return redirect(f"/users/{like.message.user_id}")
+
+        url = request.form['url']
+        return redirect(url)
+
     else:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -97,8 +106,9 @@ def unlike_message(message_id):
         db.session.delete(like)
         db.session.commit()
 
-        referrer = request.referrer
-        return redirect(referrer)
+        url = request.form['url']
+
+        return redirect(url)
 
     else:
         flash("Access unauthorized.", "danger")
