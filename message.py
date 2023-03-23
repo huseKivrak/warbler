@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, g
 
 from forms import MessageForm
-from models import db, Message
+from models import db, Message, Like
 from app import app
 
 
@@ -57,3 +57,49 @@ def delete_message(message_id):
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
+
+#make sure we can't like our own messages
+@app.post('/messages/<int:message_id>/like')
+def like_message(message_id):
+    """Likes a message"""
+    #make this a helper function?
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        like = Like(user_id=g.user.id, message_id=message_id)
+
+        db.session.add(like)
+        db.session.commit()
+        return redirect(f"/users/{like.message.user_id}")
+    else:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+
+@app.post('/messages/<int:message_id>/unlike')
+def unlike_message(message_id):
+    """Unlikes a message"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        likes = g.user.likes
+        like = [l for l in likes if l.message_id == message_id][0]
+
+        like_user_id = like.message.user_id
+        
+        db.session.delete(like)
+        db.session.commit()
+
+        return redirect(f"/users/{like_user_id}")
+    else:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")

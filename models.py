@@ -67,11 +67,13 @@ class User(db.Model):
     bio = db.Column(
         db.Text,
         nullable=False,
+        default="",
     )
 
     location = db.Column(
         db.Text,
         nullable=False,
+        default="",
     )
 
     password = db.Column(
@@ -80,6 +82,8 @@ class User(db.Model):
     )
 
     messages = db.relationship('Message', backref="user")
+
+    likes = db.relationship('Like', backref="user")
 
     followers = db.relationship(
         "User",
@@ -145,6 +149,13 @@ class User(db.Model):
         found_user_list = [
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
+    
+    def is_liked_by_user(self, message_id):
+        """Does the user like the message?"""
+        
+        found_like_list = [
+            like for like in self.likes if like.message_id == message_id]
+        return len(found_like_list) == 1
 
 
 class Message(db.Model):
@@ -174,6 +185,8 @@ class Message(db.Model):
         nullable=False,
     )
 
+    likes = db.relationship("Like", backref="message")
+
 
 def connect_db(app):
     """Connect this database to provided Flask app.
@@ -184,3 +197,22 @@ def connect_db(app):
     app.app_context().push()
     db.app = app
     db.init_app(app)
+
+
+class Like(db.Model):
+    """Relationship between users and messages """
+
+    __tablename__ = "likes"
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+
+    message_id = db.Column(
+        db.Integer,
+        db.ForeignKey('messages.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
+

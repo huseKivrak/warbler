@@ -8,7 +8,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, CSRFForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Like
 
 load_dotenv()
 
@@ -23,7 +23,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-# toolbar = DebugToolbarExtension(app)
+toolbar = DebugToolbarExtension(app)
 
 
 connect_db(app)
@@ -66,7 +66,6 @@ def signup():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
     form = UserAddForm()
-
     if form.validate_on_submit():
         try:
             user = User.signup(
