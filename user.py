@@ -108,7 +108,7 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    form = EditUser(obj=g.user)
+    form = EditUser(obj=g.user)     #move below guard condition
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -129,7 +129,7 @@ def profile():
 
     return render_template('/users/edit.html', form=form)
 
-
+#missing csrf protection, check elswhere too
 @app.post('/users/delete')
 def delete_user():
     """Delete user.

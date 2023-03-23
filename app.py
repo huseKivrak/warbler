@@ -36,7 +36,7 @@ connect_db(app)
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
-
+    #add this form in a different function. not related to every function
     g.csrf_form = CSRFForm()
 
     if CURR_USER_KEY in session:
@@ -108,9 +108,10 @@ def login():
 @app.post('/logout')
 def logout():
     """Handle logout of user and redirect to homepage."""
+    #check if we have g.user
 
     form = g.csrf_form
-
+    #do something if form isn't validated. redirect to homepage or unauthorized
     if form.validate_on_submit():
         do_logout()
 
@@ -122,7 +123,7 @@ def logout():
 ##############################################################################
 # Homepage and error pages
 
-
+#update docstring
 @app.get('/')
 def homepage():
     """Show homepage:

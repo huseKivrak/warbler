@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<!--background-image-->
 <div id="warbler-hero"
      class="full-width">
      {% if user.header_image_url %}
@@ -84,6 +84,7 @@
 <div class="row">
   <div class="col-sm-3">
     <h4 id="sidebar-username">@{{ user.username }}</h4>
+    <!-- don't need if here-->
     {% if user.bio %}
       <p>{{ user.bio }}</p>
     {% endif %}
