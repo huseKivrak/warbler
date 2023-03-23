@@ -156,3 +156,17 @@ def delete_user():
         db.session.commit()
 
     return redirect("/signup")
+
+@app.get('/users/<int:user_id>/likes')
+def show_likes(user_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+
+    liked_messages = user.liked_messages
+
+    return render_template(
+        'users/show.html', user=user, messages=liked_messages)

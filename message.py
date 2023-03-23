@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, g
+from flask import render_template, flash, redirect, request, g
 
 from forms import MessageForm
 from models import db, Message, Like
@@ -66,7 +66,7 @@ def like_message(message_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
+
     form = g.csrf_form
 
     if form.validate_on_submit():
@@ -87,19 +87,19 @@ def unlike_message(message_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
+
     form = g.csrf_form
 
     if form.validate_on_submit():
         likes = g.user.likes
         like = [l for l in likes if l.message_id == message_id][0]
 
-        like_user_id = like.message.user_id
-        
         db.session.delete(like)
         db.session.commit()
 
-        return redirect(f"/users/{like_user_id}")
+        referrer = request.referrer
+        return redirect(referrer)
+
     else:
         flash("Access unauthorized.", "danger")
         return redirect("/")

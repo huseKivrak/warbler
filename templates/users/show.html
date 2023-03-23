@@ -8,18 +8,18 @@
     <li class="list-group-item">
       <a href="/messages/{{ message.id }}" class="message-link"></a>
 
-      <a href="/users/{{ user.id }}">
-        <img src="{{ user.image_url }}" alt="user image" class="timeline-image">
+      <a href="/users/{{ message.user.id }}">
+        <img src="{{ message.user.image_url }}" alt="user image" class="timeline-image">
       </a>
       <div class="message-area">
-        <a href="/users/{{ user.id }}">@{{ user.username }}</a>
+        <a href="/users/{{ message.user.id }}">@{{ message.user.username }}</a>
         <span class="text-muted">
           {{ message.timestamp.strftime('%d %B %Y') }}
         </span>
         <p>{{ message.text }}</p>
 
       </div>
-      {% if g.user.id != user_id %}
+      {% if message.user_id != g.user.id %}
       {% if g.user.is_liked_by_user(message.id) %}
       <form method="POST" , action="/messages/{{ message.id }}/unlike" style="z-index: 1000;">
         {{ g.csrf_form.hidden_tag () }}

@@ -85,6 +85,10 @@ class User(db.Model):
 
     likes = db.relationship('Like', backref="user")
 
+    liked_messages = db.relationship(
+        'Message', secondary='likes', backref="likers"
+    )
+
     followers = db.relationship(
         "User",
         secondary="follows",
@@ -149,10 +153,10 @@ class User(db.Model):
         found_user_list = [
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
-    
+
     def is_liked_by_user(self, message_id):
         """Does the user like the message?"""
-        
+
         found_like_list = [
             like for like in self.likes if like.message_id == message_id]
         return len(found_like_list) == 1
@@ -215,4 +219,3 @@ class Like(db.Model):
         db.ForeignKey('messages.id', ondelete='CASCADE'),
         primary_key=True,
     )
-
