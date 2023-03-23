@@ -23,7 +23,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 
 connect_db(app)
@@ -73,7 +73,7 @@ def signup():
             db.session.commit()
 
         except IntegrityError:
-            flash("Username already taken", 'danger')
+            flash("Username/email already taken", 'danger')
             return render_template('users/signup.html', form=form)
 
         do_login(user)
@@ -133,6 +133,7 @@ def homepage():
 
     if g.user:
         following_ids = [u.id for u in g.user.following]
+        following_ids.append(g.user.id)
         messages = (Message
                     .query
                     .filter(Message.user_id.in_(following_ids))
