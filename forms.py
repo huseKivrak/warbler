@@ -10,6 +10,12 @@ class MessageForm(FlaskForm):
 
     text = TextAreaField('text', validators=[DataRequired()])
 
+    def validate_text(self, field):
+        if len(field.data) > 140:
+            raise ValidationError(
+                "Messages can only be 140 characters or less!"
+            )
+
 
 class UserAddForm(FlaskForm):
     """Form for adding users."""

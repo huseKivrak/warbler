@@ -195,7 +195,7 @@ def delete_user():
     else:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
+
 
 
 
