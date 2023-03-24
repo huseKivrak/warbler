@@ -4,6 +4,26 @@ from forms import MessageForm
 from models import db, Message, Like
 from app import app
 
+#############################################################################
+# GET ROUTES
+
+
+@app.get('/messages/<int:message_id>')
+def show_message(message_id):
+    """Show a message."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = g.csrf_form
+
+    msg = Message.query.get_or_404(message_id)
+    return render_template('messages/show.html', message=msg, form=form)
+
+#############################################################################
+# POST ROUTES
+
 
 @app.route('/messages/new', methods=["GET", "POST"])
 def add_message():
@@ -28,20 +48,6 @@ def add_message():
     return render_template('messages/create.html', form=form)
 
 
-@app.get('/messages/<int:message_id>')
-def show_message(message_id):
-    """Show a message."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
-
-    form = g.csrf_form
-
-    msg = Message.query.get_or_404(message_id)
-    return render_template('messages/show.html', message=msg, form=form)
-
-
 @app.post('/messages/<int:message_id>/delete')
 def delete_message(message_id):
     """Delete a message.
@@ -63,12 +69,14 @@ def delete_message(message_id):
 
     return redirect(f"/users/{g.user.id}")
 
+#############################################################################
+# LIKES AND DISLIKES
+
 
 @app.post('/messages/<int:message_id>/like')
 def like_message(message_id):
     """Likes a message"""
 
-    # make guard clauses a helper function?
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")

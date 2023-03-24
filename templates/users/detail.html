@@ -2,18 +2,10 @@
 <!--background-image-->
 <div id="warbler-hero" class="full-width">
   {% if user.header_image_url %}
-  <img
-    src="{{ user.header_image_url }}"
-    class="img-fluid"
-    style="width: 100%; height: 100%"
-  />
+  <img src="{{ user.header_image_url }}" class="img-fluid" style="width: 100%; height: 100%" />
   {% endif%}
 </div>
-<img
-  src="{{ user.image_url }}"
-  alt="Image for {{ user.username }}"
-  id="profile-avatar"
-/>
+<img src="{{ user.image_url }}" alt="Image for {{ user.username }}" id="profile-avatar" />
 <div class="row full-width">
   <div class="container" style="max-width: 1300px">
     <div class="row justify-content-end">
@@ -65,10 +57,12 @@
             </form>
             {% elif g.user %} {% if g.user.is_following(user) %}
             <form method="POST" action="/users/stop-following/{{ user.id }}">
+              {{ g.csrf_form.hidden_tag() }}
               <button class="btn btn-primary">Unfollow</button>
             </form>
             {% else %}
             <form method="POST" action="/users/follow/{{ user.id }}">
+              {{ g.csrf_form.hidden_tag() }}
               <button class="btn btn-outline-primary">Follow</button>
             </form>
             {% endif %} {% endif %}

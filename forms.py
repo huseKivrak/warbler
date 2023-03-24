@@ -80,14 +80,13 @@ class EditUser(FlaskForm):
         validators=[Optional()]
     )
 
-
     password = PasswordField(
         'Confrim password',
         validators=[Length(min=6)],
     )
 
-
     """custom validation methods"""
+
     def validate_password(self, field):
         """authenticates password from edit submission"""
 
@@ -95,14 +94,14 @@ class EditUser(FlaskForm):
             raise ValidationError('Incorrect password, please try again.')
 
     def validate_username(self, field):
-        """validates that new username is unique in database"""
+        """validates that edited username is unique in database"""
 
         existing_user = User.query.filter_by(username=field.data).one_or_none()
         if existing_user and existing_user.username != g.user.username:
             raise ValidationError('Username is already taken.')
 
     def validate_email(self, field):
-        """validates that new email is unique in database"""
+        """validates that edited email is unique in database"""
 
         existing_user = User.query.filter_by(email=field.data).one_or_none()
         if existing_user and existing_user.email != g.user.email:
@@ -111,4 +110,3 @@ class EditUser(FlaskForm):
 
 class CSRFForm(FlaskForm):
     """empty form for CSRF protection"""
-

@@ -57,7 +57,7 @@
               <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
               <p>{{ message.text }}</p>
             </div>
-
+            <!--buttons to like/unlike-->
             {% if message.user_id != g.user.id %}
             {% if g.user.is_liked_by_user(message.id) %}
             <form method="POST" , action="/messages/{{ message.id }}/unlike" style="z-index: 1000;">

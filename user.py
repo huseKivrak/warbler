@@ -5,6 +5,8 @@ from forms import EditUser
 from models import db, User, Message, DEFAULT_IMAGE_URL, DEFAULT_HEADER_IMAGE_URL
 from helpers import do_logout
 
+###########################################################################
+#GET routes
 
 @app.get('/users')
 def list_users():
@@ -39,11 +41,25 @@ def show_user(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    # format?
     messages = Message.query.filter_by(
         user_id=user.id).order_by(Message.timestamp.desc()).all()
 
     return render_template('users/show.html', user=user, messages=messages, form=form)
+
+@app.get('/users/<int:user_id>/likes')
+def show_likes(user_id):
+    """Shows a user's liked messages"""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+
+    liked_messages = user.liked_messages
+
+    return render_template(
+        'users/show.html', user=user, messages=liked_messages)
 
 
 @app.get('/users/<int:user_id>/following')
@@ -70,6 +86,9 @@ def show_followers(user_id):
     return render_template('users/followers.html', user=user)
 
 
+##############################################################################
+#POST routes
+
 @app.post('/users/follow/<int:follow_id>')
 def start_following(follow_id):
     """Add a follow for the currently-logged-in user.
@@ -81,11 +100,18 @@ def start_following(follow_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    followed_user = User.query.get_or_404(follow_id)
-    g.user.following.append(followed_user)
-    db.session.commit()
+    form = g.csrf_form
 
-    return redirect(f"/users/{g.user.id}/following")
+    if form.validate_on_submit():
+        followed_user = User.query.get_or_404(follow_id)
+        g.user.following.append(followed_user)
+
+        db.session.commit()
+        return redirect(f"/users/{g.user.id}/following")
+
+    else:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
 
 @app.post('/users/stop-following/<int:follow_id>')
@@ -99,11 +125,17 @@ def stop_following(follow_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    followed_user = User.query.get(follow_id)
-    g.user.following.remove(followed_user)
-    db.session.commit()
+    form = g.csrf_form
+    if form.validate_on_submit():
+        followed_user = User.query.get(follow_id)
+        g.user.following.remove(followed_user)
 
-    return redirect(f"/users/{g.user.id}/following")
+        db.session.commit()
+        return redirect(f"/users/{g.user.id}/following")
+
+    else:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
@@ -126,7 +158,7 @@ def profile():
         g.user.email = form.email.data
         g.user.image_url = (form.image_url.data or DEFAULT_IMAGE_URL)
         g.user.header_image_url = (
-            form.header_image_url.data or DEFAULT_HEADER_IMAGE_URL) #format?
+            form.header_image_url.data or DEFAULT_HEADER_IMAGE_URL)  # format?
         g.user.bio = form.bio.data
         g.user.location = form.location.data
 
@@ -135,7 +167,7 @@ def profile():
 
     return render_template('/users/edit.html', form=form)
 
-#missing csrf protection, check elswhere too
+
 @app.post('/users/delete')
 def delete_user():
     """Delete user.
@@ -154,21 +186,17 @@ def delete_user():
         do_logout()
 
         Message.query.filter_by(user_id=user.id).delete()
+
         db.session.delete(user)
+
         db.session.commit()
+        return redirect("/signup")
 
-    return redirect("/signup")
-
-@app.get('/users/<int:user_id>/likes')
-def show_likes(user_id):
-
-    if not g.user:
+    else:
         flash("Access unauthorized.", "danger")
         return redirect("/")
+    
 
-    user = User.query.get_or_404(user_id)
 
-    liked_messages = user.liked_messages
 
-    return render_template(
-        'users/show.html', user=user, messages=liked_messages)
+

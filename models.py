@@ -155,7 +155,7 @@ class User(db.Model):
         return len(found_user_list) == 1
 
     def is_liked_by_user(self, message_id):
-        """Does the user like the message?"""
+        """Does the user like this message?"""
 
         found_like_list = [
             like for like in self.likes if like.message_id == message_id]
@@ -192,17 +192,6 @@ class Message(db.Model):
     likes = db.relationship("Like", backref="message")
 
 
-def connect_db(app):
-    """Connect this database to provided Flask app.
-
-    You should call this in your Flask app.
-    """
-
-    app.app_context().push()
-    db.app = app
-    db.init_app(app)
-
-
 class Like(db.Model):
     """Relationship between users and messages """
 
@@ -219,3 +208,14 @@ class Like(db.Model):
         db.ForeignKey('messages.id', ondelete='CASCADE'),
         primary_key=True,
     )
+
+
+def connect_db(app):
+    """Connect this database to provided Flask app.
+
+    You should call this in your Flask app.
+    """
+
+    app.app_context().push()
+    db.app = app
+    db.init_app(app)
