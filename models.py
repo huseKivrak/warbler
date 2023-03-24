@@ -153,10 +153,10 @@ class User(db.Model):
         found_user_list = [
             user for user in self.following if user == other_user]
         return len(found_user_list) == 1
-
+    #improve function name
     def is_liked_by_user(self, message_id):
         """Does the user like this message?"""
-
+        #use sqlalchemy relationship instead
         found_like_list = [
             like for like in self.likes if like.message_id == message_id]
         return len(found_like_list) == 1

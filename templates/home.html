@@ -59,7 +59,7 @@
             </div>
             <!--buttons to like/unlike-->
             {% if message.user_id != g.user.id %}
-            {% if g.user.is_liked_by_user(message.id) %}
+            {% if g.user.is_liked_by_user(message.id) %}<!-- style buttons in css file instead, right justify too-->
             <form method="POST" , action="/messages/{{ message.id }}/unlike" style="z-index: 1000;">
               {{ g.csrf_form.hidden_tag () }}
               <input type="hidden" name="url" value="{{ request.url }}">

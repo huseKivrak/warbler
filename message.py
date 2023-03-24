@@ -77,14 +77,14 @@ def delete_message(message_id):
 def like_message(message_id):
     """Likes a message"""
 
-    if not g.user:
+    if not g.user: #combine with if on 86
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
     form = g.csrf_form
 
     if form.validate_on_submit():
-        like = Like(user_id=g.user.id, message_id=message_id)
+        like = Like(user_id=g.user.id, message_id=message_id) # user sqlalchemy relationship instead, can use in unlike also
 
         db.session.add(like)
         db.session.commit()
