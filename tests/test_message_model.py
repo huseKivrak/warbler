@@ -1,29 +1,8 @@
-# class Message(db.Model):
-#     __tablename__ = 'messages'
-#     id = db.Column(
-#         db.Integer,
-#         primary_key=True,
-#     )
-#     text = db.Column(
-#         db.String(140),
-#         nullable=False,
-#     )
-#     timestamp = db.Column(
-#         db.DateTime,
-#         nullable=False,
-#         default=datetime.utcnow,
-#     )
-#     user_id = db.Column(
-#         db.Integer,
-#         db.ForeignKey('users.id', ondelete='CASCADE'),
-#         nullable=False,
-#     )
 
-#     likes = db.relationship("Like", backref="message")
 from models import Message, User
 from unittest import TestCase
 from app import db
-import datetime
+
 
 
 class TestMessage(TestCase):

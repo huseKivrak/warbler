@@ -5,6 +5,7 @@
 #    FLASK_DEBUG=False python -m unittest test_message_views.py
 
 
+from app import app, CURR_USER_KEY
 import os
 from unittest import TestCase
 
@@ -19,7 +20,6 @@ os.environ['DATABASE_URL'] = "postgresql:///warbler_test"
 
 # Now we can import app
 
-from app import app, CURR_USER_KEY
 
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
@@ -38,20 +38,31 @@ db.create_all()
 
 app.config['WTF_CSRF_ENABLED'] = False
 
+too_long = """
+    Venmo gentrify thundercats narwhal, vinyl poutine yes plz enamel pin listicle keffiyeh.
+    Fixie la croix crucifix, tilde coloring book enamel pin food truck hella biodiesel readymade swag.
+    Vinyl hexagon flannel biodiesel street art 3 wolf moon 8-bit poutine lyft, green juice fanny pack.
+    Bodega boys humblebrag schlitz flexitarian aesthetic tilde.
+    """
+
 
 class MessageBaseViewTestCase(TestCase):
     def setUp(self):
         User.query.delete()
 
         u1 = User.signup("u1", "u1@email.com", "password", None)
+        u2 = User.signup("u2", "u2@email.com", "password", None)
         db.session.flush()
 
         m1 = Message(text="m1-text", user_id=u1.id)
-        db.session.add_all([m1])
+        m2 = Message(text="m2-text", user_id=u2.id)
+        db.session.add_all([m1, m2])
         db.session.commit()
 
         self.u1_id = u1.id
-        self.m1_id = m1.id
+        self.u2_id = u2.id
+        self.m2_id = m2.id
+        self.m2_id = m2.id
 
         self.client = app.test_client()
 
@@ -70,4 +81,57 @@ class MessageAddViewTestCase(MessageBaseViewTestCase):
 
             self.assertEqual(resp.status_code, 302)
 
-            Message.query.filter_by(text="Hello").one()
+            added_msg = Message.query.filter_by(text="Hello").one()
+
+            self.assertEqual(added_msg.user_id, self.u1_id)
+
+    def test_bad_add_message(self):
+        # Checks that msgs over max length are rejected
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.u1_id
+
+            resp = c.post("/messages/new", data={
+                "text": too_long}, follow_redirects=True)
+
+            html = resp.get_data(as_text=True)
+            self.assertIn("Messages can only be 140 characters or less!", html)
+
+    def test_bad_user_add_message(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = None
+
+            resp = c.post("/messages/new", data={
+                "text": "no user"}, follow_redirects=True)
+
+            html = resp.get_data(as_text=True)
+            self.assertIn("Access unauthorized.", html)
+
+
+
+class MessageDeleteViewTestCase(MessageBaseViewTestCase):
+    def test_delete_message(self):
+        with self.client as c:
+                with c.session_transaction() as sess:
+                    sess[CURR_USER_KEY] = self.u1_id
+
+                resp = c.post(f"/messages/{self.m1_id}/delete")
+                self.assertEqual(resp.status_code, 302)
+
+                msg = Message.query.one_or_none(self.u1_id)
+                self.assertEqual(msg, None)
+
+    def test_bad_user_delete_message(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                    sess[CURR_USER_KEY] = self.u2_id
+
+            resp = c.post(f"/messages/{self.m1_id}/delete", follow_redirects=True)
+
+            html = resp.get_data(as_text=True)
+            self.assertIn("Access unauthorized.", html)
+
+            msg = Message.query.one_or_none(self.u1_id)
+            self.assertEqual(msg, None)
+
