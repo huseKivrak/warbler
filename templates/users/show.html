@@ -1,15 +1,17 @@
-{% extends 'users/detail.html' %}
-{% block user_details %}
+{% extends 'users/detail.html' %} {% block user_details %}
 <div class="col-sm-6">
   <ul class="list-group" id="messages">
-
     {% for message in messages %}
 
     <li class="list-group-item">
       <a href="/messages/{{ message.id }}" class="message-link"></a>
 
       <a href="/users/{{ message.user.id }}">
-        <img src="{{ message.user.image_url }}" alt="user image" class="timeline-image">
+        <img
+          src="{{ message.user.image_url }}"
+          alt="user image"
+          class="timeline-image"
+        />
       </a>
       <div class="message-area">
         <a href="/users/{{ message.user.id }}">@{{ message.user.username }}</a>
@@ -17,28 +19,33 @@
           {{ message.timestamp.strftime('%d %B %Y') }}
         </span>
         <p>{{ message.text }}</p>
-
       </div>
       <!--buttons to like/unlike-->
-      {% if message.user_id != g.user.id %}
-      {% if g.user.is_message_liked_by_user(message.id) %}
-      <form method="POST" , action="/messages/{{ message.id }}/unlike" style="z-index: 1000;">
+      {% if message.user_id != g.user.id %} {% if
+      g.user.is_message_liked_by_user(message.id) %}
+      <form
+        method="POST"
+        ,
+        action="/messages/{{ message.id }}/unlike"
+        style="z-index: 1000"
+      >
         {{ g.csrf_form.hidden_tag () }}
-        <input type="hidden" name="url" value="{{ request.url }}">
+        <input type="hidden" name="url" value="{{ request.url }}" />
         <button class="btn bi bi-envelope-paper-heart-fill"></button>
       </form>
       {% else %}
-      <form method="POST" , action="/messages/{{ message.id }}/like" style="z-index: 1000;">
+      <form
+        method="POST"
+        ,
+        action="/messages/{{ message.id }}/like"
+        style="z-index: 1000"
+      >
         {{ g.csrf_form.hidden_tag () }}
-        <input type="hidden" name="url" value="{{ request.url }}">
+        <input type="hidden" name="url" value="{{ request.url }}" />
         <button class="btn bi bi-envelope-paper-heart"></button>
       </form>
-      {% endif %}
-      {% endif %}
-
-      {% endfor %}
+      {% endif %} {% endif %} {% endfor %}
     </li>
-
   </ul>
 </div>
 {% endblock %}
