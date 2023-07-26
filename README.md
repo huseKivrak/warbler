@@ -189,6 +189,7 @@ Huse Kivrak - [huse@husekivrak.com](mailto:huse@husekivrak.com)
 Project Link: [https://github.com/husekivrak/warbler](https://github.com/husekivrak/warbler)
 
 Live Demo: [https://warbler-huse.onrender.com/](https://warbler-huse.onrender.com/)
+>"guest" | "password"
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
